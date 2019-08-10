@@ -1,0 +1,13 @@
+Package: gitR
+Title: Integration of text editing and git in R
+Version: 0.1.0
+Authors@R: c(person("Norm", "Matloff", email = "matloff@cs.ucdavis.edu", role = c("aut", "cre"), comment = c(ORCID = "0000-0001-9179-6785")))
+Maintainer: Norm Matloff <matloff@cs.ucdavis.edu>
+Description: For example, allows one to edit a file and push it to the
+   main repo, both seamlessly from within R.
+Encoding: UTF-8
+LazyData: true
+Depends: 
+URL: https://github.com/matloff/gitR
+BugReports: https://github.com/matloff/gitR/issues
+Imports: stats, utils

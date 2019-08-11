@@ -62,6 +62,29 @@ editPush <- function(fname,commitComment) {
    pushToGitHub(fname,commitComment)
 }
 
+######################  gitCO  #############################
+
+# executes "git log" in shell, and invites user to
+# choose some previous commit; if 'master' is TRUE, change to master
+gitCO <- function(master=FALSE) {
+   if (master) {
+      system('git checkout master')
+      return()
+   }
+   glog <- system('git log',intern=TRUE)
+   print(glog)
+   ans <- readline('desired commit (Enter for none): ')
+   if (ans != '') {
+      num <- as.integer(ans)
+      splitline <- strsplit(glog[num],' ')[[1]]
+      commitNum <- splitline[2]
+      system(paste('git checkout',commitNum))
+   }
+}
+
+gitLS <- function() {
+   system('ls')
+}
       
 #######################  makeSysCmd #########################
       
@@ -72,6 +95,9 @@ editPush <- function(fname,commitComment) {
 #     
 # g <- makeSysCmd('ls')  # Mac/Linux command to list files
 # g()  # is then same as typing system('ls')
+
+# rather indirect, but (a) more convenient when have nested quotes and
+# (b) good for aliasing with my 'ksREPL' package
 
 makeSysCmd <- function(...) {
    x <- paste(...)

@@ -76,14 +76,50 @@ gitCO <- function(master=FALSE) {
    ans <- readline('desired commit (Enter for none): ')
    if (ans != '') {
       num <- as.integer(ans)
-      splitline <- strsplit(glog[num],' ')[[1]]
-      commitNum <- splitline[2]
-      system(paste('git checkout',commitNum))
+      gitCOCommitLine(glog[num])
    }
 }
 
+# checkout from line of form "commit xxxxx'
+gitCOCommitLine <- function(commitLine) {
+   splitline <- strsplit(commitLine,' ')[[1]]
+   commitNum <- splitline[2]
+   system(paste('git checkout',commitNum))
+}
+
+# simple wrapper, usable return value
 gitLS <- function() {
-   system('ls')
+   system('ls',intern=TRUE)
+}
+
+# find the latest commit that contains the specified file or specified
+# text in that file
+gitFindFile <- function(fn,targetText=NULL) 
+{
+   # for safety if error
+   on.exit(system('git checkout master')
+   glog <- system('git log',intern=TRUE)
+   commits <- grep('commit',glog)
+   for (i in commits) {
+      # checkout that commit
+      gitCOCommitLine(glog[i])
+      fls <- gitLS()
+      if (fn %in% fls) {
+         # just want to find the file?
+         if (is.null(targetText)) {
+            cat('file found in ',commits[i])
+            break
+         }
+         # grep case
+         grepOut <- system(paste('grep',targetText,fn),intern=TRUE)
+         if (length(grepOut) > 0) {
+            cat('target text found in ',commits[i])
+            break
+         }
+      }
+      return()
+   }
+   system('git checkout master')
 }
       
 #######################  makeSysCmd #########################

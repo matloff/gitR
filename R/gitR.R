@@ -1,4 +1,6 @@
 
+### to add:  pull, clone, status, clean (-nf)
+
 
 ###################  gitOpPush  ########################
 

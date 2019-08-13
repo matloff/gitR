@@ -1,48 +1,44 @@
 
 
-###################  pushToGitHub  ########################
-
-# the 'fileList' argument will be tacked on to 'git add' (or 'git mv' if
-# op is 'mv'), with the file names relative to current directory, and
-# the git op will be performed 
+###################  gitOpPush  ########################
 
 # example
 
-#   pushToGitHub('xy z','"new src files"')
+#   gitOpPush('xy z','"new src files"')
 
-# will push xy and z in current directory, with the commit done with the
-# message "new src files"
+# will do 'git add' and push xy and z in current directory, 
+# with the commit done with the message "new src files"
 
 # arguments:
  
-#    fileList: character vector of file names to be git-ted
-#    commitComment: string to be used with git commit -m
-#    op: 'add' or 'mv'
+#    fileList: character string of file names to be git-ted, e.g. 
+#       'abc de f'
+#    commitComment: string to be used with git commit -m; double quotes
+#       within single quotes
+#    op: 'add', 'rm', 'rmr' (rm -r) or 'mv'
 #    mvdest: destination directory of op = 'mv'
 
-pushToGitHub <- function(fileList,commitComment,op='add',mvdest=NULL) {
-   op1 <- strsplit(op,' ')[[1]][1]
-   if (op1 == 'mv') stop('mv not implemented yet')
-   if (!(op1 %in% c('add','rm'))) stop('bad op')
-   partcmd <- paste('git',op)
-   cmd <- paste(partcmd,fileList)
-   print(paste('git command OK?', cmd))
-   cmd <- makeSysCmd(cmd)
-   cmd()
-   cmd <- makeSysCmd('git commit -m ',commitComment)
-   cmd()
+gitOpPush <- function(fileList,commitComment,op='add',mvdest=NULL) {
+   if (!(op %in% c('add','rm','rmr','mv'))) stop('bad op')
+   if (op == 'mv' && is.null(mvdest)) stop('mv requires mvdest')
+   cmd <- paste('git',op,fileList)
+   if (op == 'mv') cmd <- paste(cmd,mvdest)
+   ans <- readline(paste('git command OK?', cmd, ' '))
+   if (substr(ans,1,1) != 'y') stop('bad command')
+   system(cmd)
+   system(paste('git commit -m ',commitComment))
    # commit may take a while
-   readline('hit Enter when ready')
-   ghPush()
+   readline('hit Enter when ready for push ')
+   gitPush()
 }
 
 
 ######################  ghPush  ########################
 
 # push to GitHub, final action; make it a loop in case of password
-# mistyping :-)
+# mistyping :-); only pushes to 'origin'
 
-ghPush <- function() {
+gitPush <- function() {
    cmd <- makeSysCmd('git push origin')
    while (TRUE) {
       if (cmd() == 0) return()
@@ -51,7 +47,7 @@ ghPush <- function() {
 
 ######################  editPush  #############################
 
-# edit file, then push
+# edit file, then do 'git add' and push
 
 editPush <- function(fname,commitComment) {
    print('make sure commitComment has double quotes within single')
@@ -59,13 +55,14 @@ editPush <- function(fname,commitComment) {
    textEditor <- Sys.getenv('EDITOR')
    cmd <- makeSysCmd(textEditor,fname)
    cmd()
-   pushToGitHub(fname,commitComment)
+   gitOpPush(fname,commitComment)
 }
 
 ######################  gitCO  #############################
 
 # executes "git log" in shell, and invites user to
-# choose some previous commit; if 'master' is TRUE, change to master
+# choose some previous commit; if 'master' is TRUE, change to master,
+# no invitation to choose other
 gitCO <- function(master=FALSE) {
    if (master) {
       system('git checkout master')
@@ -97,7 +94,7 @@ gitLS <- function() {
 gitFindFile <- function(fn,targetText=NULL) 
 {
    # for safety if error
-   on.exit(system('git checkout master')
+   on.exit(system('git checkout master'))
    glog <- system('git log',intern=TRUE)
    commits <- grep('commit',glog)
    for (i in commits) {

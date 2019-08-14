@@ -1,7 +1,4 @@
 
-### to add:  pull, clone, status, clean (-nf)
-
-
 ###################  gitOpPush  ########################
 
 # example
@@ -26,7 +23,7 @@ gitOpPush <- function(fileList,commitComment,op='add',mvdest=NULL) {
    cmd <- paste('git',op,fileList)
    if (op == 'mv') cmd <- paste(cmd,mvdest)
    ans <- readline(paste('git command OK?', cmd, ' '))
-   if (substr(ans,1,1) != 'y') stop('bad command')
+   if (substr(ans,1,1) != 'y') stop('bad yes/no answer')
    system(cmd)
    system(paste('git commit -m ',commitComment))
    # commit may take a while
@@ -38,10 +35,10 @@ gitOpPush <- function(fileList,commitComment,op='add',mvdest=NULL) {
 ######################  ghPush  ########################
 
 # push to GitHub, final action; make it a loop in case of password
-# mistyping :-); only pushes to 'origin'
+# mistyping :-)
 
-gitPush <- function() {
-   cmd <- makeSysCmd('git push origin')
+gitPush <- function(toWhere='origin') {
+   cmd <- makeSysCmd('git push',toWhere)
    while (TRUE) {
       if (cmd() == 0) return()
    }
@@ -53,7 +50,7 @@ gitPush <- function() {
 
 editPush <- function(fname,commitComment) {
    print('make sure commitComment has double quotes within single')
-   readline('hit Enter when ready')
+   readline('hit Enter when ready ')
    textEditor <- Sys.getenv('EDITOR')
    cmd <- makeSysCmd(textEditor,fname)
    cmd()
@@ -86,9 +83,21 @@ gitCOCommitLine <- function(commitLine) {
    system(paste('git checkout',commitNum))
 }
 
-# simple wrapper, usable return value
+# determines tracked and untracked files in current dir, usable return value
 gitLS <- function() {
-   system('ls',intern=TRUE)
+   tracked <- system('git ls-files',intern=TRUE)
+   untracked <- setdiff(dir(),tracked)
+   list(tracked=tracked,untracked=untracked)
+}
+
+# shows, then if directed, removes untracked files
+gitClean <- function() {
+   cat('untracked files:\n')
+   unt <- gitLS()$untracked
+   print(unt)
+   ans <- readline('remove? ')
+   if (substr(ans,1,1) != 'y') stop('bad yes/no answer')
+   unlink(unt)
 }
 
 # find the latest commit that contains the specified file or specified

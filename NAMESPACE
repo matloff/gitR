@@ -1,10 +1,11 @@
 
 export(editPush)
-export(pushToGitHub)
+export(gitOpPush)
 export(gitPush)
 export(gitLS)
 export(gitCOCommitLine)
 export(gitCO)
 export(gitFindFile)
+export(gitClean)
 export(makeSysCmd)
 

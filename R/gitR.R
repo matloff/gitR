@@ -18,12 +18,15 @@
 #    mvdest: destination directory of op = 'mv'
 
 gitOpPush <- function(fileList,commitComment,op='add',mvdest=NULL) {
+   nc <- nchar(commitComment)
+   if (substr(commitComment,1,1) != '"' || 
+       substr(commitComment,nc,nc) != '"')
+          stop('arg 2 must be double quotes within single')
    if (!(op %in% c('add','rm','rmr','mv'))) stop('bad op')
    if (op == 'mv' && is.null(mvdest)) stop('mv requires mvdest')
    cmd <- paste('git',op,fileList)
    if (op == 'mv') cmd <- paste(cmd,mvdest)
-   ans <- readline(paste('git command OK?', cmd, ' '))
-   if (substr(ans,1,1) != 'y') stop('bad yes/no answer')
+   askOK(paste('git command OK?', cmd))
    system(cmd)
    system(paste('git commit -m ',commitComment))
    # commit may take a while
@@ -49,8 +52,10 @@ gitPush <- function(toWhere='origin') {
 # edit file, then do 'git add' and push
 
 editPush <- function(fname,commitComment) {
-   print('make sure commitComment has double quotes within single')
-   readline('hit Enter when ready ')
+   nc <- nchar(commitComment)
+   if (substr(commitComment,1,1) != '"' || 
+       substr(commitComment,nc,nc) != '"')
+          stop('arg 2 must be double quotes within single')
    textEditor <- Sys.getenv('EDITOR')
    cmd <- makeSysCmd(textEditor,fname)
    cmd()
@@ -63,13 +68,13 @@ editPush <- function(fname,commitComment) {
 # choose some previous commit; if 'master' is TRUE, change to master,
 # no invitation to choose other
 gitCO <- function(master=FALSE) {
+   system('git checkout master')
    if (master) {
-      system('git checkout master')
       return()
    }
    glog <- system('git log',intern=TRUE)
    print(glog)
-   ans <- readline('desired commit (Enter for none): ')
+   ans <- readline('line number of desired commit (Enter for none): ')
    if (ans != '') {
       num <- as.integer(ans)
       gitCOCommitLine(glog[num])
@@ -95,8 +100,7 @@ gitClean <- function() {
    cat('untracked files:\n')
    unt <- gitLS()$untracked
    print(unt)
-   ans <- readline('remove? ')
-   if (substr(ans,1,1) != 'y') stop('bad yes/no answer')
+   askOK('remove untracked files?')
    unlink(unt)
 }
 
@@ -151,3 +155,7 @@ makeSysCmd <- function(...) {
    f
 }
 
+askOK <- function(query) {
+   ans <- readline(paste(query,' '))
+   if (substr(ans,1,1) != 'y') stop('bad yes/no answer')
+}

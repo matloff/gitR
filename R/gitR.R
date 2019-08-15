@@ -17,21 +17,22 @@
 #    op: 'add', 'rm', 'rmr' (rm -r) or 'mv'
 #    mvdest: destination directory of op = 'mv'
 
-gitOpPush <- function(fileList,commitComment,op='add',mvdest=NULL) {
+gitOpPush <- function(fileList,commitComment,
+      op='add',mvdest=NULL,remote='origin') {
    nc <- nchar(commitComment)
    if (substr(commitComment,1,1) != '"' || 
        substr(commitComment,nc,nc) != '"')
           stop('arg 2 must be double quotes within single')
-   if (!(op %in% c('add','rm','rmr','mv'))) stop('bad op')
+   if (!(op %in% c('add','rm','rm -r','mv'))) stop('bad op')
    if (op == 'mv' && is.null(mvdest)) stop('mv requires mvdest')
    cmd <- paste('git',op,fileList)
    if (op == 'mv') cmd <- paste(cmd,mvdest)
-   askOK(paste('git command OK?', cmd))
+   askOK(paste('git command:',cmd,'  OK?'))
    system(cmd)
    system(paste('git commit -m ',commitComment))
    # commit may take a while
    readline('hit Enter when ready for push ')
-   gitPush()
+   gitPush(remote)
 }
 
 
@@ -40,8 +41,8 @@ gitOpPush <- function(fileList,commitComment,op='add',mvdest=NULL) {
 # push to GitHub, final action; make it a loop in case of password
 # mistyping :-)
 
-gitPush <- function(toWhere='origin') {
-   cmd <- makeSysCmd('git push',toWhere)
+gitPush <- function(remote='origin') {
+   cmd <- makeSysCmd('git push',remote)
    while (TRUE) {
       if (cmd() == 0) return()
    }
@@ -85,7 +86,7 @@ gitCO <- function(master=FALSE) {
 gitCOCommitLine <- function(commitLine) {
    splitline <- strsplit(commitLine,' ')[[1]]
    commitNum <- splitline[2]
-   system(paste('git checkout',commitNum))
+   system(paste('git checkout -q',commitNum))
 }
 
 # determines tracked and untracked files in current dir, usable return value
@@ -109,28 +110,30 @@ gitClean <- function() {
 gitFindFile <- function(fn,targetText=NULL) 
 {
    # for safety if error
-   on.exit(system('git checkout master'))
+   on.exit(system('git checkout -q master'))
    glog <- system('git log',intern=TRUE)
    commits <- grep('commit',glog)
    for (i in commits) {
       # checkout that commit
       gitCOCommitLine(glog[i])
       fls <- gitLS()
-      if (fn %in% fls) {
+      if (fn %in% fls$tracked) {
          # just want to find the file?
          if (is.null(targetText)) {
-            cat('file found in ',commits[i])
-            break
+            cat('file found in ',glog[i],'\n')
+            system('git checkout master')
+            return()
          }
          # grep case
          grepOut <- system(paste('grep',targetText,fn),intern=TRUE)
          if (length(grepOut) > 0) {
-            cat('target text found in ',commits[i])
-            break
+            cat('target text found in ',glog[i],'\n')
+            system('git checkout master')
+            return()
          }
       }
-      return()
    }
+   print('not found')
    system('git checkout master')
 }
       

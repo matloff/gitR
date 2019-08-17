@@ -18,7 +18,8 @@
 #    mvdest: destination directory of op = 'mv'
 
 gitOpPush <- function(fileList,commitComment,
-      op='add',mvdest=NULL,remote='origin') {
+      op='add',mvdest=NULL,remote='origin',
+      quiet=FALSE,acceptEnter=FALSE) {
    nc <- nchar(commitComment)
    if (substr(commitComment,1,1) != '"' || 
        substr(commitComment,nc,nc) != '"')
@@ -27,12 +28,12 @@ gitOpPush <- function(fileList,commitComment,
    if (op == 'mv' && is.null(mvdest)) stop('mv requires mvdest')
    cmd <- paste('git',op,fileList)
    if (op == 'mv') cmd <- paste(cmd,mvdest)
-   askOK(paste('git command:',cmd,'  OK?'))
+   askOK(paste('git command:',cmd,'  OK?'),acceptEnter=TRUE)
    system(cmd)
    system(paste('git commit -m ',commitComment))
    # commit may take a while
    readline('hit Enter when ready for push ')
-   gitPush(remote)
+   gitPush(remote,quiet)
 }
 
 
@@ -41,8 +42,10 @@ gitOpPush <- function(fileList,commitComment,
 # push to GitHub, final action; make it a loop in case of password
 # mistyping :-)
 
-gitPush <- function(remote='origin') {
-   cmd <- makeSysCmd('git push',remote)
+gitPush <- function(remote='origin',quiet=FALSE) {
+   if (!quiet) {
+     cmd <- makeSysCmd('git push',remote) 
+   } else cmd <- makeSysCmd('git push',remote,'-q')
    while (TRUE) {
       if (cmd() == 0) return()
    }
@@ -52,7 +55,7 @@ gitPush <- function(remote='origin') {
 
 # edit file, then do 'git add' and push
 
-editPush <- function(fname,commitComment) {
+editPush <- function(fname,commitComment,quiet=FALSE,acceptEnter=FALSE) {
    nc <- nchar(commitComment)
    if (substr(commitComment,1,1) != '"' || 
        substr(commitComment,nc,nc) != '"')
@@ -60,7 +63,7 @@ editPush <- function(fname,commitComment) {
    textEditor <- Sys.getenv('EDITOR')
    cmd <- makeSysCmd(textEditor,fname)
    cmd()
-   gitOpPush(fname,commitComment)
+   gitOpPush(fname,commitComment,quiet,acceptEnter)
 }
 
 ######################  gitCO  #############################
@@ -158,7 +161,13 @@ makeSysCmd <- function(...) {
    f
 }
 
-askOK <- function(query) {
+###################  askOK ##################################
+
+# user prompt for assent
+
+askOK <- function(query,acceptEnter=FALSE) {
    ans <- readline(paste(query,' '))
-   if (substr(ans,1,1) != 'y') stop('bad yes/no answer')
+   if (substr(ans,1,1) == 'y' ||
+       acceptEnter && ans == '') return()
+   stop('bad yes/no/Enter answer')
 }

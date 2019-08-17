@@ -37,7 +37,7 @@ gitOpPush <- function(fileList,commitComment,
 }
 
 
-######################  ghPush  ########################
+######################  gitPush  ########################
 
 # push to GitHub, final action; make it a loop in case of password
 # mistyping :-)
@@ -45,7 +45,7 @@ gitOpPush <- function(fileList,commitComment,
 gitPush <- function(remote='origin',quiet=FALSE) {
    if (!quiet) {
      cmd <- makeSysCmd('git push',remote) 
-   } else cmd <- makeSysCmd('git push',remote,'-q')
+   } else cmd <- makeSysCmd('git push -q',remote)
    while (TRUE) {
       if (cmd() == 0) return()
    }

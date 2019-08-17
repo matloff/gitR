@@ -28,12 +28,12 @@ gitOpPush <- function(fileList,commitComment,
    if (op == 'mv' && is.null(mvdest)) stop('mv requires mvdest')
    cmd <- paste('git',op,fileList)
    if (op == 'mv') cmd <- paste(cmd,mvdest)
-   askOK(paste('git command:',cmd,'  OK?'),acceptEnter=TRUE)
+   askOK(paste('git command:',cmd,'  OK?'),acceptEnter=acceptEnter)
    system(cmd)
    system(paste('git commit -m ',commitComment))
    # commit may take a while
    readline('hit Enter when ready for push ')
-   gitPush(remote,quiet)
+   gitPush(remote,quiet=quiet)
 }
 
 
@@ -63,7 +63,7 @@ editPush <- function(fname,commitComment,quiet=FALSE,acceptEnter=FALSE) {
    textEditor <- Sys.getenv('EDITOR')
    cmd <- makeSysCmd(textEditor,fname)
    cmd()
-   gitOpPush(fname,'add',commitComment,quiet,acceptEnter)
+   gitOpPush(fname,commitComment,quiet=quiet,acceptEnter=acceptEnter)
 }
 
 ######################  gitCO  #############################

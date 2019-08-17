@@ -17,7 +17,7 @@
 #    op: 'add', 'rm', 'rm - r' or 'mv'
 #    mvdest: destination directory of op = 'mv'
 
-gitOpPush <- function(fileList,op,commitComment,
+gitOpPush <- function(fileList,commitComment,
       op='add',mvdest=NULL,remote='origin',
       quiet=FALSE,acceptEnter=FALSE) {
    nc <- nchar(commitComment)

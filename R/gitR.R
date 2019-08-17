@@ -14,10 +14,10 @@
 #       'abc de f'
 #    commitComment: string to be used with git commit -m; double quotes
 #       within single quotes
-#    op: 'add', 'rm', 'rmr' (rm -r) or 'mv'
+#    op: 'add', 'rm', 'rm - r' or 'mv'
 #    mvdest: destination directory of op = 'mv'
 
-gitOpPush <- function(fileList,commitComment,
+gitOpPush <- function(fileList,op,commitComment,
       op='add',mvdest=NULL,remote='origin',
       quiet=FALSE,acceptEnter=FALSE) {
    nc <- nchar(commitComment)

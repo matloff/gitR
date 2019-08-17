@@ -63,7 +63,7 @@ editPush <- function(fname,commitComment,quiet=FALSE,acceptEnter=FALSE) {
    textEditor <- Sys.getenv('EDITOR')
    cmd <- makeSysCmd(textEditor,fname)
    cmd()
-   gitOpPush(fname,commitComment,quiet,acceptEnter)
+   gitOpPush(fname,'add',commitComment,quiet,acceptEnter)
 }
 
 ######################  gitCO  #############################

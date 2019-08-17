@@ -16,6 +16,9 @@
 #       within single quotes
 #    op: 'add', 'rm', 'rm - r' or 'mv'
 #    mvdest: destination directory of op = 'mv'
+#    remote: 'origin' or...
+#    quiet: no splash message with push (may depend on env. var.)
+#    acceptEnter: Enter is acceptable response to 'OK?' query
 
 gitOpPush <- function(fileList,commitComment,
       op='add',mvdest=NULL,remote='origin',

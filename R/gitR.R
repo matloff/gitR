@@ -74,12 +74,21 @@ editPush <- function(fname,commitComment,quiet=FALSE,acceptEnter=FALSE) {
 # executes "git log" in shell, and invites user to
 # choose some previous commit; if 'master' is TRUE, change to master,
 # no invitation to choose other
-gitCO <- function(master=FALSE) {
+# since: Show commits more recent than the specified date
+gitCO <- function(master=FALSE, since=NULL) {
    system('git checkout master')
    if (master) {
       return()
    }
-   glog <- system('git log',intern=TRUE)
+
+   if(is.null(since)) {
+     cmd <- 'git log'
+   } else {
+     cmd <- paste0('git log --since=', since)
+   }
+
+   glog <- system(cmd, intern=TRUE)
+
    page(trimws(glog), method = "print")
    ans <- readline('line number of desired commit (Enter for none): ')
    if (ans != '') {

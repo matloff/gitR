@@ -5,12 +5,12 @@
 
 #   gitOpPush('xy z','"new src files"')
 
-# will do 'git add' and push xy and z in current directory, 
+# will do 'git add' and push xy and z in current directory,
 # with the commit done with the message "new src files"
 
 # arguments:
- 
-#    fileList: character string of file names to be git-ted, e.g. 
+
+#    fileList: character string of file names to be git-ted, e.g.
 #       'abc de f'
 #    commitComment: string to be used with git commit -m; double quotes
 #       within single quotes
@@ -24,7 +24,7 @@ gitOpPush <- function(fileList,commitComment,
       op='add',mvdest=NULL,remote='origin',
       quiet=FALSE,acceptEnter=FALSE) {
    nc <- nchar(commitComment)
-   if (substr(commitComment,1,1) != '"' || 
+   if (substr(commitComment,1,1) != '"' ||
        substr(commitComment,nc,nc) != '"')
           stop('arg 2 must be double quotes within single')
    if (!(op %in% c('add','rm','rm -r','mv'))) stop('bad op')
@@ -47,7 +47,7 @@ gitOpPush <- function(fileList,commitComment,
 
 gitPush <- function(remote='origin',quiet=FALSE) {
    if (!quiet) {
-     cmd <- makeSysCmd('git push',remote) 
+     cmd <- makeSysCmd('git push',remote)
    } else cmd <- makeSysCmd('git push -q',remote)
    while (TRUE) {
       if (cmd() == 0) return()
@@ -60,7 +60,7 @@ gitPush <- function(remote='origin',quiet=FALSE) {
 
 editPush <- function(fname,commitComment,quiet=FALSE,acceptEnter=FALSE) {
    nc <- nchar(commitComment)
-   if (substr(commitComment,1,1) != '"' || 
+   if (substr(commitComment,1,1) != '"' ||
        substr(commitComment,nc,nc) != '"')
           stop('arg 2 must be double quotes within single')
    textEditor <- Sys.getenv('EDITOR')
@@ -74,13 +74,21 @@ editPush <- function(fname,commitComment,quiet=FALSE,acceptEnter=FALSE) {
 # executes "git log" in shell, and invites user to
 # choose some previous commit; if 'master' is TRUE, change to master,
 # no invitation to choose other
-gitCO <- function(master=FALSE) {
+# since: Show commits more recent than the specified date
+# files: Show commits related to the files choosen. Char vector
+gitCO <- function(master=FALSE, files=NULL, since=NULL) {
    system('git checkout master')
    if (master) {
       return()
    }
-   glog <- system('git log',intern=TRUE)
-   print(glog)
+
+   opt_file <- if(!is.null(file)) paste('--', paste(files, collapse = ' '))
+   opt_since <- if(!is.null(since)) paste0('--since=', since)
+
+   cmd <- paste('git log', opt_since, opt_file)
+   glog <- system(cmd, intern=TRUE)
+
+   page(trimws(glog), method = 'print')
    ans <- readline('line number of desired commit (Enter for none): ')
    if (ans != '') {
       num <- as.integer(ans)
@@ -113,7 +121,7 @@ gitClean <- function() {
 
 # find the latest commit that contains the specified file or specified
 # text in that file
-gitFindFile <- function(fn,targetText=NULL) 
+gitFindFile <- function(fn,targetText=NULL)
 {
    # for safety if error
    on.exit(system('git checkout -q master'))
@@ -142,14 +150,14 @@ gitFindFile <- function(fn,targetText=NULL)
    print('not found')
    system('git checkout master')
 }
-      
+
 #######################  makeSysCmd #########################
-      
+
 # utility function to construct a string containing an R command,
 # involving system()
-      
+
 # e.g.
-#     
+#
 # g <- makeSysCmd('ls')  # Mac/Linux command to list files
 # g()  # is then same as typing system('ls')
 

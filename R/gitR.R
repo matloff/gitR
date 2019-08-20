@@ -75,19 +75,20 @@ editPush <- function(fname,commitComment,quiet=FALSE,acceptEnter=FALSE) {
 # choose some previous commit; if 'master' is TRUE, change to master,
 # no invitation to choose other
 # since: Show commits more recent than the specified date
-gitCO <- function(master=FALSE, file=NULL, since=NULL) {
+# files: Show commits related to the files choosen. Char vector
+gitCO <- function(master=FALSE, files=NULL, since=NULL) {
    system('git checkout master')
    if (master) {
       return()
    }
 
-   opt_file <- if(!is.null(file)) paste("--follow", file)
-   opt_since <- if(!is.null(since)) paste0("--since=", since)
+   opt_file <- if(!is.null(file)) paste('--', paste(files, collapse = ' '))
+   opt_since <- if(!is.null(since)) paste0('--since=', since)
 
    cmd <- paste('git log', opt_since, opt_file)
    glog <- system(cmd, intern=TRUE)
 
-   page(trimws(glog), method = "print")
+   page(trimws(glog), method = 'print')
    ans <- readline('line number of desired commit (Enter for none): ')
    if (ans != '') {
       num <- as.integer(ans)

@@ -63,10 +63,15 @@ gitEdPush <- function(fname,commitComment,quiet=FALSE,acceptEnter=FALSE) {
    if (substr(commitComment,1,1) != '"' ||
        substr(commitComment,nc,nc) != '"')
           stop('arg 2 must be double quotes within single')
+   openShellEditor(fname)
+   gitOpPush(fname,commitComment,quiet=quiet,acceptEnter=acceptEnter)
+}
+
+openShellEditor <- function(fname) 
+{
    textEditor <- Sys.getenv('EDITOR')
    cmd <- makeSysCmd(textEditor,fname)
    cmd()
-   gitOpPush(fname,commitComment,quiet=quiet,acceptEnter=acceptEnter)
 }
 
 ######################  gitCO  #############################
@@ -136,27 +141,33 @@ gitFindFile <- function(fn,targetText=NULL)
    on.exit(system('git checkout -q master'))
    glog <- system('git log',intern=TRUE)
    commits <- grep('commit',glog)
-   for (i in commits) {
+   found <- TRUE
+   for (linenum in commits) {
       # checkout that commit
-      gitCOCommitLine(glog[i])
+      gitCOCommitLine(glog[linenum])
       fls <- gitLS()
       if (fn %in% fls$tracked) {
          # just want to find the file?
          if (is.null(targetText)) {
-            cat('file found in ',glog[i],'\n')
-            system('git checkout master')
-            return()
+            cat('file found in ',glog[linenum],'\n')
+            found <- TRUE
+            break
          }
          # grep case
          grepOut <- system(paste('grep',targetText,fn),intern=TRUE)
          if (length(grepOut) > 0) {
-            cat('target text found in ',glog[i],'\n')
-            system('git checkout master')
-            return()
+            cat('target text found in ',glog[linenum],'\n')
+            found <- TRUE
+            break
          }
       }
    }
-   print('not found')
+   if (!found) {
+      print('not found')
+   }  else {
+      ans <- readline('open in editor? (Enter means no).')
+      if (ans == 'y') openShellEditor(fn)
+   }
    system('git checkout master')
 }
 

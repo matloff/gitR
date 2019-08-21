@@ -99,6 +99,7 @@ gitCO <- function(master=FALSE, files=NULL, since=NULL) {
 # checkout from line of form "commit xxxxx'
 gitCOCommitLine <- function(commitLine) {
    splitline <- strsplit(commitLine,' ')[[1]]
+   if (splitline[1] != 'commit') stop('not a commit line')
    commitNum <- splitline[2]
    system(paste('git checkout -q',commitNum))
 }

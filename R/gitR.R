@@ -104,6 +104,14 @@ gitCOCommitLine <- function(commitLine) {
    system(paste('git checkout -q',commitNum))
 }
 
+# go to specified commit; 'comm' must be quoted commit number
+gitGo <- function(comm='master') {
+   system(paste0('git checkout -q ',comm))
+}
+
+# wrapper for git status -v
+gitSta <- function() system('git status -v')
+
 # determines tracked and untracked files in current dir, usable return value
 gitLS <- function() {
    tracked <- system('git ls-files',intern=TRUE)

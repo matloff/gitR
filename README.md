@@ -5,7 +5,7 @@ your text editor.
 
 **Example:**
 ``` r
-editPush('x','"test case"') 
+gitEdPush('x','"test case"') 
 ```
 
 will open your (shell default) text editor, allow you to edit and save

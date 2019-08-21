@@ -54,11 +54,11 @@ gitPush <- function(remote='origin',quiet=FALSE) {
    }
 }
 
-######################  editPush  #############################
+######################  gitEdPush  #############################
 
 # edit file, then do 'git add' and push
 
-editPush <- function(fname,commitComment,quiet=FALSE,acceptEnter=FALSE) {
+gitEdPush <- function(fname,commitComment,quiet=FALSE,acceptEnter=FALSE) {
    nc <- nchar(commitComment)
    if (substr(commitComment,1,1) != '"' ||
        substr(commitComment,nc,nc) != '"')

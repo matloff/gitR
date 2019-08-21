@@ -20,7 +20,7 @@ gitOpPush('x','"not needed anymore"','rm')
 ```
 
 Removes the file **x**, then does commit and push, with the specified
-commit comment.  Other allowed ops are 'add', 'mv' and 'rmr' (rm -r).
+commit comment.  Other allowed ops are 'add', 'mv' and 'rm -r').
 
 **Example:**
 
@@ -29,7 +29,24 @@ gitCO()
 ```
 
 Executes 'git log' (does 'git checkout master' first), then gives user a
-choice of which commit, if any, the user wishes to switch to
+choice of which commit, if any, the user wishes to switch to.
+
+**Example:**
+
+``` r
+gitCO(master=TRUE)
+```
+
+Return to the master version of the repo.
+
+**Example:**
+
+``` r
+gitCO(files='rr')
+```
+
+Show all commits involving changes to the file **rr**.  (The file must
+currently exist in the master.)
 
 **Example:** 
 

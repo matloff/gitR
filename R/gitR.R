@@ -90,7 +90,7 @@ gitCO <- function(master=FALSE, files=NULL, since=NULL) {
    opt_file <- if(!is.null(file)) paste('--', paste(files, collapse = ' '))
    opt_since <- if(!is.null(since)) paste0('--since=', since)
 
-   cmd <- paste('git log', opt_since, opt_file)
+   cmd <- paste('git log -p', opt_since, opt_file)
    glog <- system(cmd, intern=TRUE)
 
    page(trimws(glog), method = 'print')
@@ -117,12 +117,11 @@ gitGo <- function(comm='master') {
 # wrapper for git status -v
 gitSta <- function() system('git status -v')
 
-# determines tracked and untracked files in current dir, usable return value
-gitLS <- function() {
-   tracked <- system('git ls-files',intern=TRUE)
-   untracked <- setdiff(dir(),tracked)
-   list(tracked=tracked,untracked=untracked)
-}
+# determines tracked and untracked files in current dir, usable return
+# value
+gitLS <- function() { tracked <- system('git ls-files',intern=TRUE)
+untracked <- setdiff(dir(),tracked)
+list(tracked=tracked,untracked=untracked) }
 
 # shows, then if directed, removes untracked files
 gitClean <- function() {

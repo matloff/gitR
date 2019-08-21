@@ -45,8 +45,7 @@ Return to the master version of the repo.
 gitCO(files='rr')
 ```
 
-Show all commits involving changes to the file **rr**.  (The file must
-currently exist in the master.)
+Show all commits involving changes to the file **rr**.  
 
 **Example:** 
 

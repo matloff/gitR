@@ -47,11 +47,12 @@ gitOpPush <- function(fileList,commitComment,
 
 gitPush <- function(remote='origin',quiet=FALSE) {
    if (!quiet) {
-     cmd <- makeSysCmd('git push',remote)
-   } else cmd <- makeSysCmd('git push -q',remote)
-   while (TRUE) {
-      if (cmd() == 0) return()
+     cmd <- system(paste('git push', remote))
+   } else {
+     cmd <- system(paste('git push -q', remote))
    }
+
+   repeat if (cmd == 0) break
 }
 
 ######################  gitEdPush  #############################
@@ -67,7 +68,7 @@ gitEdPush <- function(fname,commitComment,quiet=FALSE,acceptEnter=FALSE) {
    gitOpPush(fname,commitComment,quiet=quiet,acceptEnter=acceptEnter)
 }
 
-openShellEditor <- function(fname) 
+openShellEditor <- function(fname)
 {
    textEditor <- Sys.getenv('EDITOR')
    cmd <- makeSysCmd(textEditor,fname)
@@ -168,27 +169,6 @@ gitFindFile <- function(fn,targetText=NULL)
       if (ans == 'y') openShellEditor(fn)
    }
    system('git checkout master')
-}
-
-#######################  makeSysCmd #########################
-
-# utility function to construct a string containing an R command,
-# involving system()
-
-# e.g.
-#
-# g <- makeSysCmd('ls')  # Mac/Linux command to list files
-# g()  # is then same as typing system('ls')
-
-# rather indirect, but (a) more convenient when have nested quotes and
-# (b) good for aliasing with my 'ksREPL' package
-
-makeSysCmd <- function(...) {
-   x <- paste(...)
-   f <- function() {
-       system(x)
-   }
-   f
 }
 
 ###################  askOK ##################################

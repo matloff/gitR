@@ -88,7 +88,7 @@ gitCO <- function(master=FALSE, files=NULL, since=NULL) {
       return()
    }
 
-   opt_file <- if(!is.null(file)) paste('--', paste(files, collapse = ' '))
+   opt_file <- if(!is.null(files)) paste('--', paste(files, collapse = ' '))
    opt_since <- if(!is.null(since)) paste0('--since=', since)
 
    cmd <- paste('git log -p', opt_since, opt_file)
@@ -120,9 +120,11 @@ gitSta <- function() system('git status -v')
 
 # determines tracked and untracked files in current dir, usable return
 # value
-gitLS <- function() { tracked <- system('git ls-files',intern=TRUE)
-untracked <- setdiff(dir(),tracked)
-list(tracked=tracked,untracked=untracked) }
+gitLS <- function() {
+   tracked <- system('git ls-files',intern=TRUE)
+   untracked <- setdiff(dir(),tracked)
+   list(tracked=tracked,untracked=untracked)
+}
 
 # shows, then if directed, removes untracked files
 gitClean <- function() {
@@ -135,7 +137,7 @@ gitClean <- function() {
 
 # find the latest commit that contains the specified file or specified
 # text in that file
-gitFindFile <- function(fn,targetText=NULL)
+gitFindFile <- function(fname,targetText=NULL)
 {
    # for safety if error
    on.exit(system('git checkout -q master'))
@@ -146,7 +148,7 @@ gitFindFile <- function(fn,targetText=NULL)
       # checkout that commit
       gitCOCommitLine(glog[linenum])
       fls <- gitLS()
-      if (fn %in% fls$tracked) {
+      if (fname %in% fls$tracked) {
          # just want to find the file?
          if (is.null(targetText)) {
             cat('file found in ',glog[linenum],'\n')
@@ -154,7 +156,7 @@ gitFindFile <- function(fn,targetText=NULL)
             break
          }
          # grep case
-         grepOut <- system(paste('grep',targetText,fn),intern=TRUE)
+         grepOut <- system(paste('grep',targetText,fname),intern=TRUE)
          if (length(grepOut) > 0) {
             cat('target text found in ',glog[linenum],'\n')
             found <- TRUE

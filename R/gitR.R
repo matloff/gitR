@@ -79,9 +79,10 @@ openShellEditor <- function(fname)
 # executes "git log" in shell, and invites user to
 # choose some previous commit; if 'master' is TRUE, change to master,
 # no invitation to choose other
-# since: Show commits more recent than the specified date
-# files: Show commits related to the files choosen. Char vector
-gitCO <- function(master=FALSE, files=NULL, since=NULL) {
+# changed: use --name-status in 'git log', so will see what files were changed
+# files: show commits related to the files choosen. Char vector
+# since: show commits more recent than the specified date
+gitCO <- function(master=FALSE, changed=TRUE, files=NULL, since=NULL) {
    system('git checkout master')
    if (master) {
       return()
@@ -90,7 +91,9 @@ gitCO <- function(master=FALSE, files=NULL, since=NULL) {
    opt_file <- if(!is.null(file)) paste('--', paste(files, collapse = ' '))
    opt_since <- if(!is.null(since)) paste0('--since=', since)
 
-   cmd <- paste('git log -p', opt_since, opt_file)
+   cmd <- 'git log -p'
+   if (changed) cmd <- paste(cmd,'--name-status')
+   cmd <- paste(cmd, opt_since, opt_file)
    glog <- system(cmd, intern=TRUE)
 
    page(trimws(glog), method = 'print')

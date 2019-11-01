@@ -47,11 +47,12 @@ gitOpPush <- function(fileList,commitComment,
 
 gitPush <- function(remote='origin',quiet=FALSE) {
    if (!quiet) {
-     cmd <- makeSysCmd('git push',remote)
-   } else cmd <- makeSysCmd('git push -q',remote)
-   while (TRUE) {
-      if (cmd() == 0) return()
+     cmd <- system(paste('git push', remote))
+   } else {
+     cmd <- system(paste('git push -q', remote))
    }
+
+   repeat if (cmd == 0) break
 }
 
 ######################  gitEdPush  #############################
@@ -67,7 +68,7 @@ gitEdPush <- function(fname,commitComment,quiet=FALSE,acceptEnter=FALSE) {
    gitOpPush(fname,commitComment,quiet=quiet,acceptEnter=acceptEnter)
 }
 
-openShellEditor <- function(fname) 
+openShellEditor <- function(fname)
 {
    textEditor <- Sys.getenv('EDITOR')
    cmd <- makeSysCmd(textEditor,fname)
@@ -88,7 +89,7 @@ gitCO <- function(master=FALSE, changed=TRUE, files=NULL, since=NULL) {
       return()
    }
 
-   opt_file <- if(!is.null(file)) paste('--', paste(files, collapse = ' '))
+   opt_file <- if(!is.null(files)) paste('--', paste(files, collapse = ' '))
    opt_since <- if(!is.null(since)) paste0('--since=', since)
 
    cmd <- 'git log -p'
@@ -122,9 +123,11 @@ gitSta <- function() system('git status -v')
 
 # determines tracked and untracked files in current dir, usable return
 # value
-gitLS <- function() { tracked <- system('git ls-files',intern=TRUE)
-untracked <- setdiff(dir(),tracked)
-list(tracked=tracked,untracked=untracked) }
+gitLS <- function() {
+   tracked <- system('git ls-files',intern=TRUE)
+   untracked <- setdiff(dir(),tracked)
+   list(tracked=tracked,untracked=untracked)
+}
 
 # shows, then if directed, removes untracked files
 gitClean <- function() {
@@ -137,7 +140,7 @@ gitClean <- function() {
 
 # find the latest commit that contains the specified file or specified
 # text in that file
-gitFindFile <- function(fn,targetText=NULL)
+gitFindFile <- function(fname,targetText=NULL)
 {
    # for safety if error
    on.exit(system('git checkout -q master'))
@@ -148,7 +151,7 @@ gitFindFile <- function(fn,targetText=NULL)
       # checkout that commit
       gitCOCommitLine(glog[linenum])
       fls <- gitLS()
-      if (fn %in% fls$tracked) {
+      if (fname %in% fls$tracked) {
          # just want to find the file?
          if (is.null(targetText)) {
             cat('file found in ',glog[linenum],'\n')
@@ -156,7 +159,7 @@ gitFindFile <- function(fn,targetText=NULL)
             break
          }
          # grep case
-         grepOut <- system(paste('grep',targetText,fn),intern=TRUE)
+         grepOut <- system(paste('grep',targetText,fname),intern=TRUE)
          if (length(grepOut) > 0) {
             cat('target text found in ',glog[linenum],'\n')
             found <- TRUE
@@ -171,27 +174,6 @@ gitFindFile <- function(fn,targetText=NULL)
       if (ans == 'y') openShellEditor(fn)
    }
    system('git checkout master')
-}
-
-#######################  makeSysCmd #########################
-
-# utility function to construct a string containing an R command,
-# involving system()
-
-# e.g.
-#
-# g <- makeSysCmd('ls')  # Mac/Linux command to list files
-# g()  # is then same as typing system('ls')
-
-# rather indirect, but (a) more convenient when have nested quotes and
-# (b) good for aliasing with my 'ksREPL' package
-
-makeSysCmd <- function(...) {
-   x <- paste(...)
-   f <- function() {
-       system(x)
-   }
-   f
 }
 
 ###################  askOK ##################################
